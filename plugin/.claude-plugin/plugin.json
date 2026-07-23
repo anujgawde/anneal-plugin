@@ -1,0 +1,10 @@
+{
+  "name": "anneal",
+  "version": "0.1.0",
+  "description": "Production-readiness observer — catches what AI code generation doesn't volunteer",
+  "author": { "name": "Anneal" },
+  "license": "MIT",
+  "keywords": ["production-readiness", "security", "vibe-coding", "mcp", "hooks"],
+  "mcpServers": "./.mcp.json",
+  "hooks": "./hooks/hooks.json"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "anneal",
+  "owner": { "name": "Anneal" },
+  "metadata": {
+    "description": "Anneal — a production-readiness observer for Claude Code that tells you what your app needs, not just what's wrong."
+  },
+  "plugins": [
+    {
+      "name": "anneal",
+      "source": "./plugin",
+      "description": "Production-readiness observer for Claude Code. Tells you what your app needs, not just what's wrong."
+    }
+  ]
+}
