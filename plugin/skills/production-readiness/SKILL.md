@@ -41,31 +41,53 @@ Lenses to apply to each capability:
 - Distinguish deterministic findings (verified in the code) from requirements (things that should exist but might not yet).
 - Report only what's MISSING — don't recite what's already handled. Offer to build each gap.
 
-## Maintaining a findings journal (`.anneal/findings.md`)
+## The findings journal (`.anneal/findings.md`)
 
-Keep a running, human-readable journal of what Anneal surfaces, at `.anneal/findings.md` in the project root (create it if missing — the `.anneal/` directory is gitignored, so it stays local). This is a **journal, not a source of truth**: a fresh `anneal_review` is always ground truth. Update the journal, don't treat it as authoritative.
+Maintain a running record at `.anneal/findings.md` (create it if missing — `.anneal/` is gitignored, so it stays local). It's a **working checklist, not a source of truth**: a fresh `anneal_review` is always ground truth. It has two jobs — track each finding's state, and remember the user's build-mode preference.
 
-It's a **running document**: each finding is a checklist item whose state you keep current *in place* — check it off when done, uncheck it if it regresses. Don't shuffle items between sections or duplicate them; edit the existing line.
+### Header: build mode
+The header records the mode:
+```
+mode: pause
+```
+- **pause** (default) — surface requirements, ask which to include, and **wait** for the user before building.
+- **auto** — build them all with the safeguards baked in, no confirmation.
 
-When to update it:
-- **After an `anneal_review`** — add any new gaps as unchecked items: severity, capability/area, what's missing, why it matters, and `file:line` for code-level findings.
-- **When a finding is resolved** — mark it `[x]` with a short "done <date>", *but only if you've verified it's actually gone in the code*. Never check off a fix you didn't confirm.
-- **When a resolved finding regresses** (the issue reappears in a later review) — flip it back to `[ ]` and note it. That's why it's a running doc, not a one-way log.
-- **When the user dismisses or accepts a risk** — move that item to **Dismissed / Accepted** with the reason and date.
+If the user says "just build it with safeguards" (or similar), set `mode: auto`. If they say "ask me first," set it back to `mode: pause`. Honor whatever it currently says.
 
-Keep it concise and readable. Suggested shape:
+### Each finding has a state
+- **suggested** — surfaced, awaiting the user's call
+- **approved** — user chose to include it → goes in the build plan → build it
+- **done** — built and verified in the code (only mark done once you've confirmed it's actually there)
+- **deferred** — user skipped it for now → stays open, resurfaces later (see below)
+- **dismissed** — user said not applicable → keep it out of the way
 
+Edit items in place — don't duplicate or shuffle. If a `done` item regresses (reappears in a later review), flip it back to `approved`.
+
+### Suggested shape
 ```markdown
 # Anneal — Findings
-_Updated 2026-07-22_
+mode: pause
+_Updated 2026-07-23_
 
-## Checklist
-- [ ] 🔴 recording — no consent flow before capture (src/lib/recorder.ts) · why: recording people without consent is illegal in many places
-- [x] 🔴 secrets — hardcoded API key (src/lib/openai.ts:3) · done 2026-07-22
-- [ ] 🟠 payments — no webhook handler for refunds/disputes
+## Open
+- [ ] 🔴 recording — no consent flow before capture (src/lib/recorder.ts) · why: illegal to record people without consent in many places · deferred
+- [ ] 🟠 payments — no webhook handler for refunds/disputes · suggested
 
-## Dismissed / Accepted
-- no-tests — accepted: early prototype, 2026-07-22
+## Building
+- [ ] 🔴 secrets — move hardcoded API key to an env var (src/lib/openai.ts:3) · approved
+
+## Done
+- [x] 🟠 cors — restrict CORS to known origins (src/server.ts) · done 2026-07-23
+
+## Dismissed
+- no-tests — not applicable: early prototype
 ```
 
-Mention the doc when you create or meaningfully update it, but don't nag about it.
+### When deferred items come back (the 3 resurface events)
+Deferred items never vanish — they wait in the journal and return when they matter:
+1. **Ship gate** — when the user is wrapping up or going to production ("deploy", "ship it", "is this ready"), resurface the deferred items that **still apply to the current code and matter for going live**, ordered by severity. Skip ones that no longer apply, but lean toward surfacing — this is the last checkpoint before real users.
+2. **While building** — when you're working on the feature a deferred item belongs to (e.g. building the endpoint that needed rate limiting), bring it up right then, not before.
+3. **On request** — when the user asks "what's still open?" / "anneal review", list the open items.
+
+Mention the journal when you create or meaningfully update it, but don't nag about it.

@@ -21728,6 +21728,11 @@ function confidenceFor(hasDep, hasPath, hasContent) {
   return "low";
 }
 
+// src/core/context/changed-files.ts
+var import_node_child_process = require("node:child_process");
+var import_node_fs4 = require("node:fs");
+var import_node_path4 = require("node:path");
+
 // src/core/context/file-discovery.ts
 var import_node_fs3 = require("node:fs");
 var import_node_path3 = require("node:path");
@@ -21810,9 +21815,57 @@ function isScannable(basename) {
   return SCANNABLE_EXTENSIONS.has(basename.slice(dot).toLowerCase());
 }
 
+// src/core/context/changed-files.ts
+function getChangedFiles(projectRoot, baseline) {
+  if (!baseline) return null;
+  if (baseline.commit) {
+    const fromGit = gitChangedFiles(projectRoot, baseline.commit);
+    if (fromGit !== null) return fromGit;
+  }
+  if (baseline.timestamp) {
+    return mtimeChangedFiles(projectRoot, new Date(baseline.timestamp));
+  }
+  return null;
+}
+function currentCommit(projectRoot) {
+  try {
+    return git(projectRoot, ["rev-parse", "HEAD"]).trim() || void 0;
+  } catch {
+    return void 0;
+  }
+}
+function gitChangedFiles(projectRoot, commit) {
+  try {
+    const diffed = git(projectRoot, ["diff", "--name-only", commit]);
+    const untracked = git(projectRoot, [
+      "ls-files",
+      "--others",
+      "--exclude-standard"
+    ]);
+    const paths = new Set(
+      [...diffed.split("\n"), ...untracked.split("\n")].filter(Boolean)
+    );
+    return [...paths].filter((p) => (0, import_node_fs4.existsSync)((0, import_node_path4.join)(projectRoot, p))).sort();
+  } catch {
+    return null;
+  }
+}
+function mtimeChangedFiles(projectRoot, since) {
+  return discoverFiles(projectRoot).filter((rel) => {
+    try {
+      return (0, import_node_fs4.statSync)((0, import_node_path4.join)(projectRoot, rel)).mtimeMs > since.getTime();
+    } catch {
+      return false;
+    }
+  });
+}
+function git(cwd, args) {
+  return (0, import_node_child_process.execFileSync)("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+}
+
 // src/core/deterministic/quick-checks.ts
-var import_node_fs4 = require("node:fs");
-var import_node_path4 = require("node:path");
+var import_node_fs5 = require("node:fs");
+var import_node_path5 = require("node:path");
 var RULES = [
   {
     code: "hardcoded-secret",
@@ -21878,7 +21931,7 @@ function runQuickChecksOnFiles(projectRoot, relPaths) {
   for (const path of relPaths) {
     let content;
     try {
-      content = (0, import_node_fs4.readFileSync)((0, import_node_path4.join)(projectRoot, path), "utf8");
+      content = (0, import_node_fs5.readFileSync)((0, import_node_path5.join)(projectRoot, path), "utf8");
     } catch {
       continue;
     }
@@ -21896,13 +21949,14 @@ function buildDirective(capabilities, mode) {
   return { mode, capabilities, instruction: instructionFor(capabilities, mode) };
 }
 function instructionFor(capabilities, mode) {
+  const journal = " Record what you surface in .anneal/findings.md as a tracked checklist.";
   if (mode === "build-intent") {
-    return "The user intends to build the capabilities below. Before and while writing code, apply your Anneal readiness lenses and list the production requirements to include from the start \u2014 explain each with a concrete failure scenario and offer to build them.";
+    return "The user intends to build the capabilities below. Before and while writing code, apply your Anneal readiness lenses and list the production requirements to include from the start \u2014 explain each with a concrete failure scenario and offer to build them." + journal;
   }
   if (capabilities.length === 0) {
-    return "No specific capability detected with confidence. Reason about the app's overall production readiness from the code and the user's intent, applying your Anneal readiness lenses.";
+    return "No specific capability detected with confidence. Reason about the app's overall production readiness from the code and the user's intent, applying your Anneal readiness lenses." + journal;
   }
-  return "Apply your Anneal readiness review to the capabilities below against this codebase. Report only the requirements that are MISSING; verify low-confidence capabilities before asserting.";
+  return "Apply your Anneal readiness review to the capabilities below against this codebase. Report only the requirements that are MISSING; verify low-confidence capabilities before asserting." + journal;
 }
 
 // src/core/shared/severity.ts
@@ -21938,7 +21992,7 @@ function runReview(input) {
   const techStack = detectTechStack(input.projectRoot);
   const capabilities = detectCapabilities({ projectRoot: input.projectRoot, files, techStack });
   const directive = buildDirective(capabilities, mode);
-  const tapTargets = input.filesChanged ?? files.filter((f) => SOURCE_FILE2.test(f));
+  const tapTargets = resolveTapTargets(input, files.filter((f) => SOURCE_FILE2.test(f)));
   const allFindings = dedupe(runQuickChecksOnFiles(input.projectRoot, tapTargets)).sort(
     (a, b) => compareSeverity(a.severity, b.severity) || a.file.localeCompare(b.file) || a.line - b.line
   );
@@ -21969,6 +22023,16 @@ function runReview(input) {
   }
   return payload;
 }
+function resolveTapTargets(input, sourceFiles) {
+  if (input.filesChanged) return input.filesChanged;
+  if (input.full) return sourceFiles;
+  const changed = getChangedFiles(input.projectRoot, {
+    commit: currentCommit(input.projectRoot)
+  });
+  if (changed === null) return sourceFiles;
+  const changedSet = new Set(changed);
+  return sourceFiles.filter((f) => changedSet.has(f));
+}
 function dedupe(findings) {
   const seen = /* @__PURE__ */ new Set();
   const out = [];
@@ -21987,15 +22051,15 @@ var annealReviewInput = {
   mode: external_exports.enum(["review", "build-intent"]).optional().describe(
     "'review' (default) inspects existing code for gaps; 'build-intent' surfaces requirements to include BEFORE writing code, when the user expresses intent to build something"
   ),
-  files_changed: external_exports.array(external_exports.string()).optional().describe(
-    "Relative paths to limit the deterministic tap to (incremental). Omit to scan all source files."
+  full: external_exports.boolean().optional().describe(
+    "Scan the whole codebase. Omit (default) to review only files changed since the last commit \u2014 Anneal auto-detects them, you never list files. Set true ONLY when the user explicitly asks for a full/whole-codebase review."
   )
 };
 function handleAnnealReview(args) {
   const payload = runReview({
     projectRoot: args.project_path,
     mode: args.mode ?? "review",
-    filesChanged: args.files_changed
+    full: args.full
   });
   return {
     content: [{ type: "text", text: JSON.stringify(payload) }]
@@ -22003,7 +22067,7 @@ function handleAnnealReview(args) {
 }
 
 // src/mcp/server.ts
-var INSTRUCTIONS = `Anneal is a production-readiness observer. It tells you what a project *does* (capabilities) and directs you to reason about what it *needs* \u2014 surfacing production requirements the code generator didn't volunteer. Call anneal_review with mode "build-intent" when the user asks to build something (surface requirements first), and mode "review" after significant changes. Present findings conversationally in plain language \u2014 the user may not be an engineer. For the full method \u2014 the readiness lenses, how to present, and maintaining the .anneal/findings.md journal \u2014 use the "production-readiness" skill.`;
+var INSTRUCTIONS = `Anneal is a production-readiness observer. It tells you what a project *does* (capabilities) and directs you to reason about what it *needs*. Call anneal_review with mode "build-intent" when the user asks to build something, and mode "review" after significant changes (it reviews only changed files by default; pass full:true only when the user wants a whole-codebase review). Present every finding thoroughly and in plain language \u2014 for each, why it matters and a concrete failure scenario. Track findings in .anneal/findings.md as a checklist (states: suggested/approved/done/deferred/dismissed) and honor its build mode (pause = confirm which to include before building; auto = build with safeguards). For the full method and the findings.md format, use the "production-readiness" skill.`;
 function createServer() {
   const server = new McpServer(
     { name: "anneal", version: "0.1.0" },
