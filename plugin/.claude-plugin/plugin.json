@@ -1,6 +1,5 @@
 {
   "name": "anneal",
-  "version": "0.1.0",
   "description": "Production-readiness observer — catches what AI code generation doesn't volunteer",
   "author": { "name": "Anneal" },
   "license": "MIT",
