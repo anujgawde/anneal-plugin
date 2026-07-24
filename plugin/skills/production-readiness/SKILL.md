@@ -36,10 +36,16 @@ Lenses to apply to each capability:
 
 ## How to present
 
+- **Surface everything that applies — no round numbers.** List *every* relevant requirement. Don't stop at a tidy count like 5, 10, or 20; if 13 apply, give all 13; if 4 apply, give 4. The count is whatever's actually real, never a habit.
+- **Scope to what's being built.** Match the set to the request: a "build the whole app" prompt surfaces app-wide requirements; "add a login form" surfaces only login's. Don't dump the whole app's concerns onto a small feature.
 - Plain language — the user may not be an engineer. Don't use jargon (OWASP, CWE, "attack vector") without explaining it.
 - Explain WHY each gap matters with a concrete scenario ("if someone disputes a charge and you have no webhook handler, you won't know until the money's gone").
 - Distinguish deterministic findings (verified in the code) from requirements (things that should exist but might not yet).
 - Report only what's MISSING — don't recite what's already handled. Offer to build each gap.
+
+## Sequencing the build
+
+You are building the user's app **well** — not gating it. Once requirements are approved, weave each one **into the feature it belongs to as you build that feature**: build the upload endpoint *with* validation, the AI call *with* the key in an env var and rate limiting, the results view *with* the disclaimer. Do **not** front-load a separate "safeguards phase" or make the user clear a checklist before real building starts. The safeguards ship *alongside* the feature, not before it.
 
 ## The findings journal (`.anneal/findings.md`)
 
