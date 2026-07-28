@@ -2981,7 +2981,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve.call(this, root, ref);
+      let _sch = resolve2.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a = root.localRefs) === null || _a === void 0 ? void 0 : _a[ref];
         const { schemaId } = this.opts;
@@ -3008,7 +3008,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve(root, ref) {
+    function resolve2(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -3639,7 +3639,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve(baseURI, relativeURI, options) {
+    function resolve2(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -3903,7 +3903,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize,
-      resolve,
+      resolve: resolve2,
       resolveComponent,
       equal,
       serialize,
@@ -6899,7 +6899,7 @@ var require_ignore = __commonJS({
       return Array.isArray(subject) ? subject : [subject];
     }
     var UNDEFINED = void 0;
-    var EMPTY = "";
+    var EMPTY2 = "";
     var SPACE = " ";
     var ESCAPE = "\\";
     var REGEX_TEST_BLANK_LINE = /^\s+$/;
@@ -6923,7 +6923,7 @@ var require_ignore = __commonJS({
     var RETURN_FALSE = () => false;
     var sanitizeRange = (range) => range.replace(
       REGEX_REGEXP_RANGE,
-      (match, from, to) => from.charCodeAt(0) <= to.charCodeAt(0) ? match : EMPTY
+      (match, from, to) => from.charCodeAt(0) <= to.charCodeAt(0) ? match : EMPTY2
     );
     var negateRange = (range) => range.startsWith("!") || range.startsWith("\\^") ? `^${range.slice(range[0] === "!" ? 1 : 2)}` : range;
     var cleanRangeBackSlash = (slashes) => {
@@ -6936,7 +6936,7 @@ var require_ignore = __commonJS({
         // TODO:
         // Other similar zero-width characters?
         /^\uFEFF/,
-        () => EMPTY
+        () => EMPTY2
       ],
       // > Trailing spaces are ignored unless they are quoted with backslash ("\")
       [
@@ -6945,7 +6945,7 @@ var require_ignore = __commonJS({
         // (a ) -> (a)
         // (a \ ) -> (a  )
         /((?:\\\\)*?)(\\?\s+)$/,
-        (_, m1, m2) => m1 + (m2.indexOf("\\") === 0 ? SPACE : EMPTY)
+        (_, m1, m2) => m1 + (m2.indexOf("\\") === 0 ? SPACE : EMPTY2)
       ],
       // Replace (\ ) with ' '
       // (\ ) -> ' '
@@ -7268,14 +7268,14 @@ var require_ignore = __commonJS({
         return this.add(pattern);
       }
       // @returns {TestResult}
-      _test(originalPath, cache, checkUnignored, slices) {
+      _test(originalPath, cache2, checkUnignored, slices) {
         const path = originalPath && checkPath.convert(originalPath);
         checkPath(
           path,
           originalPath,
           this._strictPathCheck ? throwError : RETURN_FALSE
         );
-        return this._t(path, cache, checkUnignored, slices);
+        return this._t(path, cache2, checkUnignored, slices);
       }
       checkIgnore(path) {
         if (!REGEX_TEST_TRAILING_SLASH.test(path)) {
@@ -7296,24 +7296,24 @@ var require_ignore = __commonJS({
         }
         return this._rules.test(path, false, MODE_CHECK_IGNORE);
       }
-      _t(path, cache, checkUnignored, slices) {
-        if (path in cache) {
-          return cache[path];
+      _t(path, cache2, checkUnignored, slices) {
+        if (path in cache2) {
+          return cache2[path];
         }
         if (!slices) {
           slices = path.split(SLASH).filter(Boolean);
         }
         slices.pop();
         if (!slices.length) {
-          return cache[path] = this._rules.test(path, checkUnignored, MODE_IGNORE);
+          return cache2[path] = this._rules.test(path, checkUnignored, MODE_IGNORE);
         }
         const parent = this._t(
           slices.join(SLASH) + SLASH,
-          cache,
+          cache2,
           checkUnignored,
           slices
         );
-        return cache[path] = parent.ignored ? parent : this._rules.test(path, checkUnignored, MODE_IGNORE);
+        return cache2[path] = parent.ignored ? parent : this._rules.test(path, checkUnignored, MODE_IGNORE);
       }
       ignores(path) {
         return this._test(path, this._ignoreCache, false).ignored;
@@ -13461,12 +13461,12 @@ var StdioServerTransport = class {
     this.onclose?.();
   }
   send(message) {
-    return new Promise((resolve) => {
+    return new Promise((resolve2) => {
       const json = serializeMessage(message);
       if (this._stdout.write(json)) {
-        resolve();
+        resolve2();
       } else {
-        this._stdout.once("drain", resolve);
+        this._stdout.once("drain", resolve2);
       }
     });
   }
@@ -19534,7 +19534,7 @@ var Protocol = class {
           return;
         }
         const pollInterval = task2.pollInterval ?? this._options?.defaultTaskPollInterval ?? 1e3;
-        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        await new Promise((resolve2) => setTimeout(resolve2, pollInterval));
         options?.signal?.throwIfAborted();
       }
     } catch (error2) {
@@ -19551,7 +19551,7 @@ var Protocol = class {
    */
   request(request, resultSchema, options) {
     const { relatedRequestId, resumptionToken, onresumptiontoken, task, relatedTask } = options ?? {};
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       const earlyReject = (error2) => {
         reject(error2);
       };
@@ -19629,7 +19629,7 @@ var Protocol = class {
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
-            resolve(parseResult.data);
+            resolve2(parseResult.data);
           }
         } catch (error2) {
           reject(error2);
@@ -19890,12 +19890,12 @@ var Protocol = class {
       }
     } catch {
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve2, reject) => {
       if (signal.aborted) {
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
         return;
       }
-      const timeoutId = setTimeout(resolve, interval);
+      const timeoutId = setTimeout(resolve2, interval);
       signal.addEventListener("abort", () => {
         clearTimeout(timeoutId);
         reject(new McpError(ErrorCode.InvalidRequest, "Request cancelled"));
@@ -20995,7 +20995,7 @@ var McpServer = class {
     let task = createTaskResult.task;
     const pollInterval = task.pollInterval ?? 5e3;
     while (task.status !== "completed" && task.status !== "failed" && task.status !== "cancelled") {
-      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      await new Promise((resolve2) => setTimeout(resolve2, pollInterval));
       const updatedTask = await extra.taskStore.getTask(taskId);
       if (!updatedTask) {
         throw new McpError(ErrorCode.InternalError, `Task ${taskId} not found during polling`);
@@ -21563,13 +21563,420 @@ var EMPTY_COMPLETION_RESULT = {
   }
 };
 
-// src/core/context/capability-detector.ts
-var import_node_fs2 = require("node:fs");
-var import_node_path2 = require("node:path");
+// src/core/ledger/index.ts
+var import_node_fs6 = require("node:fs");
 
-// src/core/context/tech-stack-detector.ts
+// src/core/ledger/config.ts
+var import_node_crypto = require("node:crypto");
+var import_node_fs2 = require("node:fs");
+
+// src/core/ledger/paths.ts
 var import_node_fs = require("node:fs");
 var import_node_path = require("node:path");
+var LEDGER_DIRNAME = ".anneal";
+function ledgerPaths(projectRoot) {
+  const dir = (0, import_node_path.join)(projectRoot, LEDGER_DIRNAME);
+  return {
+    dir,
+    config: (0, import_node_path.join)(dir, "config.json"),
+    store: (0, import_node_path.join)(dir, "store.json"),
+    findings: (0, import_node_path.join)(dir, "findings.md"),
+    privacy: (0, import_node_path.join)(dir, "privacy.md"),
+    observations: (0, import_node_path.join)(dir, "observations.json")
+  };
+}
+function ensureLedgerDir(projectRoot) {
+  const paths = ledgerPaths(projectRoot);
+  (0, import_node_fs.mkdirSync)(paths.dir, { recursive: true });
+  const gi = (0, import_node_path.join)(paths.dir, ".gitignore");
+  if (!(0, import_node_fs.existsSync)(gi)) (0, import_node_fs.writeFileSync)(gi, "*\n");
+  return paths;
+}
+
+// src/core/ledger/config.ts
+var CONFIG_VERSION = 1;
+var configSchema = external_exports.object({
+  version: external_exports.number(),
+  findings: external_exports.object({
+    /** "pause" surfaces requirements and waits; "auto" builds with safeguards baked in. */
+    mode: external_exports.enum(["pause", "auto"])
+  }).strict(),
+  telemetry: external_exports.object({
+    /** Whether the abstracted observations may be uploaded. Default true (loud opt-out). */
+    consent: external_exports.boolean(),
+    /** Anonymous, auto-generated. Identifies an install, not a user. */
+    installId: external_exports.string()
+  }).strict()
+}).strict();
+function generateInstallId() {
+  return `anl_${(0, import_node_crypto.randomBytes)(4).toString("hex")}`;
+}
+function defaultConfig() {
+  return {
+    version: CONFIG_VERSION,
+    findings: { mode: "pause" },
+    telemetry: { consent: true, installId: generateInstallId() }
+  };
+}
+function readConfig(projectRoot) {
+  const { config: configPath } = ledgerPaths(projectRoot);
+  if (!(0, import_node_fs2.existsSync)(configPath)) return initConfig(projectRoot);
+  try {
+    const parsed = configSchema.parse(JSON.parse((0, import_node_fs2.readFileSync)(configPath, "utf8")));
+    return parsed;
+  } catch {
+    return initConfig(projectRoot);
+  }
+}
+function initConfig(projectRoot) {
+  const config2 = defaultConfig();
+  writeConfig(projectRoot, config2);
+  return config2;
+}
+function writeConfig(projectRoot, config2) {
+  const { config: configPath } = ensureLedgerDir(projectRoot);
+  (0, import_node_fs2.writeFileSync)(configPath, `${JSON.stringify(config2, null, 2)}
+`);
+}
+
+// src/core/ledger/privacy.ts
+var import_node_fs3 = require("node:fs");
+var PRIVACY_MD = `# What Anneal stores
+
+Everything Anneal records stays on your machine. Nothing is sent anywhere.
+
+## What we record locally
+- The **kind** of app detected (e.g. "multi-tenant", "handles payments")
+- The **capability** being reviewed (e.g. "authentication")
+- The **requirement** surfaced (e.g. "tenant isolation") and whether you
+  approved, deferred, or dismissed it
+- An anonymous install id (a random string \u2014 not you, not your project)
+
+These live in \`.anneal/observations.json\` and \`.anneal/store.json\`.
+
+## What we NEVER record
+- Your code, in any form
+- Secrets, keys, tokens, environment variables
+- File paths, project name, repo name
+- Your name, email, or any personal detail
+
+## Deleting local data
+Delete the \`.anneal/\` folder to remove everything Anneal has recorded.
+`;
+function ensurePrivacyMd(projectRoot) {
+  const { privacy } = ensureLedgerDir(projectRoot);
+  if ((0, import_node_fs3.existsSync)(privacy)) return false;
+  (0, import_node_fs3.writeFileSync)(privacy, PRIVACY_MD);
+  return true;
+}
+
+// src/core/ledger/store.ts
+var import_node_fs5 = require("node:fs");
+
+// src/core/ledger/observations.ts
+var import_node_fs4 = require("node:fs");
+
+// src/core/ledger/records.ts
+var fingerprintContextSchema = external_exports.object({
+  tenancy: external_exports.enum(["multi-tenant", "single-tenant"]).optional(),
+  jurisdiction: external_exports.array(external_exports.string()).optional(),
+  dataSensitivity: external_exports.array(external_exports.string()).optional(),
+  userPopulation: external_exports.array(external_exports.string()).optional(),
+  appClass: external_exports.string().optional(),
+  stack: external_exports.array(external_exports.string()).optional()
+}).strict();
+var fingerprintAskSchema = external_exports.object({
+  capability: external_exports.string()
+}).strict();
+var fingerprintSchema = external_exports.object({
+  context: fingerprintContextSchema,
+  ask: fingerprintAskSchema
+}).strict();
+var FINDING_STATES = [
+  "suggested",
+  "approved",
+  "done",
+  "deferred",
+  "dismissed"
+];
+var severitySchema = external_exports.enum(["critical", "high", "medium", "low"]);
+var findingRecordSchema = external_exports.object({
+  /** Stable slug, e.g. "tenant-isolation" — the key for state changes and upload. */
+  id: external_exports.string(),
+  /** Human-readable requirement text. */
+  requirement: external_exports.string(),
+  severity: severitySchema,
+  /** Why it matters, in plain language. Optional but strongly encouraged. */
+  rationale: external_exports.string().optional(),
+  state: external_exports.enum(FINDING_STATES),
+  /** The capability (ask) this requirement belongs to. */
+  capability: external_exports.string().optional(),
+  /** file or file:line — full fidelity, stays local, never uploaded. */
+  location: external_exports.string().optional(),
+  createdAt: external_exports.string(),
+  updatedAt: external_exports.string()
+}).strict();
+var OBSERVATION_DISPOSITIONS = [
+  "approved",
+  "deferred",
+  "dismissed",
+  "built"
+];
+var observationSchema = external_exports.object({
+  installId: external_exports.string(),
+  timestamp: external_exports.string(),
+  fingerprint: fingerprintSchema,
+  /** Canonical requirement id (or raw text before canonicalization). */
+  requirement: external_exports.string(),
+  disposition: external_exports.enum(OBSERVATION_DISPOSITIONS)
+}).strict();
+
+// src/core/ledger/observations.ts
+var OBSERVATIONS_VERSION = 1;
+var observationsFileSchema = external_exports.object({
+  version: external_exports.number(),
+  observations: external_exports.array(observationSchema)
+}).strict();
+var DISPOSITION_BY_STATE = {
+  approved: "approved",
+  deferred: "deferred",
+  dismissed: "dismissed",
+  done: "built"
+};
+function dispositionFor(state) {
+  return DISPOSITION_BY_STATE[state];
+}
+function emptyFile() {
+  return { version: OBSERVATIONS_VERSION, observations: [] };
+}
+function readFile(projectRoot) {
+  const { observations } = ledgerPaths(projectRoot);
+  if (!(0, import_node_fs4.existsSync)(observations)) return emptyFile();
+  try {
+    return observationsFileSchema.parse(JSON.parse((0, import_node_fs4.readFileSync)(observations, "utf8")));
+  } catch {
+    return emptyFile();
+  }
+}
+function appendObservation(projectRoot, observation) {
+  const file = readFile(projectRoot);
+  file.observations.push(observation);
+  const { observations } = ensureLedgerDir(projectRoot);
+  (0, import_node_fs4.writeFileSync)(observations, `${JSON.stringify(file, null, 2)}
+`);
+}
+function recordDisposition(projectRoot, record2, context, now) {
+  const disposition = dispositionFor(record2.state);
+  if (!disposition) return null;
+  const observation = {
+    installId: readConfig(projectRoot).telemetry.installId,
+    timestamp: now,
+    fingerprint: { context, ask: { capability: record2.capability ?? "unknown" } },
+    requirement: record2.requirement,
+    disposition
+  };
+  appendObservation(projectRoot, observation);
+  return observation;
+}
+
+// src/core/ledger/render.ts
+var SEVERITY_ICON = {
+  critical: "\u{1F534}",
+  high: "\u{1F7E0}",
+  medium: "\u{1F7E1}",
+  low: "\u26AA"
+};
+var SECTIONS = [
+  { heading: "Open", states: ["suggested", "deferred"] },
+  { heading: "Building", states: ["approved"] },
+  { heading: "Done", states: ["done"] },
+  { heading: "Dismissed", states: ["dismissed"] }
+];
+function renderFindingsMd(records, options = {}) {
+  const date3 = options.date ?? (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+  const lines = ["# Anneal \u2014 Findings", `_Updated ${date3}_`, ""];
+  for (const section of SECTIONS) {
+    const items = records.filter((r) => section.states.includes(r.state));
+    if (items.length === 0) continue;
+    lines.push(`## ${section.heading}`);
+    for (const r of sortBySeverity(items)) lines.push(renderItem(r));
+    lines.push("");
+  }
+  if (records.length === 0) lines.push("_No findings tracked yet._", "");
+  return `${lines.join("\n").trimEnd()}
+`;
+}
+function renderItem(r) {
+  const checkbox = r.state === "done" ? "[x]" : "[ ]";
+  const icon = SEVERITY_ICON[r.severity];
+  const prefix = r.capability ? `${r.capability} \u2014 ` : "";
+  const parts = [`- ${checkbox} ${icon} ${prefix}${r.requirement}`];
+  if (r.location) parts.push(`(${r.location})`);
+  const trail = [];
+  if (r.rationale) trail.push(`why: ${r.rationale}`);
+  trail.push(r.state);
+  return `${parts.join(" ")} \xB7 ${trail.join(" \xB7 ")}`;
+}
+var RANK = { critical: 0, high: 1, medium: 2, low: 3 };
+function sortBySeverity(records) {
+  return [...records].sort(
+    (a, b) => RANK[a.severity] - RANK[b.severity] || a.requirement.localeCompare(b.requirement)
+  );
+}
+
+// src/core/ledger/store.ts
+var STORE_VERSION = 1;
+var storeSchema = external_exports.object({
+  version: external_exports.number(),
+  /**
+   * The app's detected system-context layer (tenancy, sensitivity, …). Written
+   * by the review; carried onto every observation so learning knows which kind
+   * of app a decision came from.
+   */
+  context: fingerprintContextSchema.optional(),
+  findings: external_exports.array(findingRecordSchema)
+}).strict();
+function emptyStore() {
+  return { version: STORE_VERSION, findings: [] };
+}
+function readStore(projectRoot) {
+  const { store } = ledgerPaths(projectRoot);
+  if (!(0, import_node_fs5.existsSync)(store)) return emptyStore();
+  try {
+    return storeSchema.parse(JSON.parse((0, import_node_fs5.readFileSync)(store, "utf8")));
+  } catch {
+    return emptyStore();
+  }
+}
+function writeStore(projectRoot, next) {
+  const paths = ensureLedgerDir(projectRoot);
+  (0, import_node_fs5.writeFileSync)(paths.store, `${JSON.stringify(next, null, 2)}
+`);
+  (0, import_node_fs5.writeFileSync)(paths.findings, renderFindingsMd(next.findings));
+}
+var isoNow = () => (/* @__PURE__ */ new Date()).toISOString();
+function upsertFinding(projectRoot, input, options = {}) {
+  const now = (options.now ?? isoNow)();
+  const store = readStore(projectRoot);
+  const existing = store.findings.find((f) => f.id === input.id);
+  const prevState = existing?.state;
+  let record2;
+  if (existing) {
+    record2 = { ...existing, ...input, state: input.state ?? existing.state, updatedAt: now };
+    store.findings = store.findings.map((f) => f.id === record2.id ? record2 : f);
+  } else {
+    record2 = {
+      rationale: void 0,
+      capability: void 0,
+      location: void 0,
+      ...input,
+      state: input.state ?? "suggested",
+      createdAt: now,
+      updatedAt: now
+    };
+    store.findings.push(record2);
+  }
+  writeStore(projectRoot, store);
+  if (record2.state !== prevState) {
+    recordDisposition(projectRoot, record2, store.context ?? {}, now);
+  }
+  return record2;
+}
+function setFindingState(projectRoot, id, state, options = {}) {
+  const now = (options.now ?? isoNow)();
+  const store = readStore(projectRoot);
+  const record2 = store.findings.find((f) => f.id === id);
+  if (!record2) return null;
+  const prevState = record2.state;
+  record2.state = state;
+  record2.updatedAt = now;
+  writeStore(projectRoot, store);
+  if (state !== prevState) {
+    recordDisposition(projectRoot, record2, store.context ?? {}, now);
+  }
+  return record2;
+}
+function setContext(projectRoot, context) {
+  const store = readStore(projectRoot);
+  store.context = context;
+  writeStore(projectRoot, store);
+}
+
+// src/core/ledger/index.ts
+function ensureLedger(projectRoot) {
+  readConfig(projectRoot);
+  ensurePrivacyMd(projectRoot);
+  const { store, findings } = ledgerPaths(projectRoot);
+  if (!(0, import_node_fs6.existsSync)(store) || !(0, import_node_fs6.existsSync)(findings)) {
+    writeStore(projectRoot, readStore(projectRoot));
+  }
+}
+
+// src/mcp/tools/anneal-record.ts
+var annealRecordInput = {
+  project_path: external_exports.string().describe("Absolute path to the project root directory"),
+  finding_id: external_exports.string().describe(
+    'Stable slug for the requirement, e.g. "tenant-isolation". Reuse the same id to update or move a finding you already recorded.'
+  ),
+  state: external_exports.enum(FINDING_STATES).describe(
+    "Lifecycle state: 'suggested' (just surfaced), 'approved' (user wants it built), 'done' (built), 'deferred' (later), 'dismissed' (won't do)."
+  ),
+  requirement: external_exports.string().optional().describe(
+    'The requirement in plain language, e.g. "Enforce tenant isolation on every query". Required the first time you record a finding.'
+  ),
+  severity: external_exports.enum(["critical", "high", "medium", "low"]).optional().describe("Required the first time you record a finding."),
+  rationale: external_exports.string().optional().describe("Why it matters, in plain language \u2014 ideally a concrete failure scenario."),
+  capability: external_exports.string().optional().describe('The capability this belongs to, e.g. "auth", "recording".'),
+  location: external_exports.string().optional().describe("file or file:line this pertains to. Stays local, never uploaded.")
+};
+function handleAnnealRecord(args) {
+  ensureLedger(args.project_path);
+  if (args.requirement !== void 0 && args.severity !== void 0) {
+    const record2 = upsertFinding(args.project_path, {
+      id: args.finding_id,
+      requirement: args.requirement,
+      severity: args.severity,
+      state: args.state,
+      ...defined({
+        rationale: args.rationale,
+        capability: args.capability,
+        location: args.location
+      })
+    });
+    return ok(record2);
+  }
+  const moved = setFindingState(args.project_path, args.finding_id, args.state);
+  if (!moved) {
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify({
+            error: `No finding "${args.finding_id}" is tracked yet. To record a new one, include "requirement" and "severity".`
+          })
+        }
+      ],
+      isError: true
+    };
+  }
+  return ok(moved);
+}
+function ok(record2) {
+  return { content: [{ type: "text", text: JSON.stringify(record2) }] };
+}
+function defined(obj) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== void 0)
+  );
+}
+
+// src/core/context/capability-detector.ts
+var import_node_fs8 = require("node:fs");
+var import_node_path3 = require("node:path");
+
+// src/core/context/tech-stack-detector.ts
+var import_node_fs7 = require("node:fs");
+var import_node_path2 = require("node:path");
 var EMPTY_TECH_STACK = { names: [], dependencies: {} };
 var DEP_LABELS = [
   ["next", "next.js"],
@@ -21600,7 +22007,7 @@ var DEP_LABELS = [
 function detectTechStack(projectRoot) {
   let pkg;
   try {
-    pkg = JSON.parse((0, import_node_fs.readFileSync)((0, import_node_path.join)(projectRoot, "package.json"), "utf8"));
+    pkg = JSON.parse((0, import_node_fs7.readFileSync)((0, import_node_path2.join)(projectRoot, "package.json"), "utf8"));
   } catch {
     return EMPTY_TECH_STACK;
   }
@@ -21626,7 +22033,8 @@ var CATALOG = [
   {
     id: "recording",
     deps: [],
-    pathPattern: /(^|\/)(recordings?|media|capture)(\/|[.-])/i,
+    // Not `media` — that collides with image-media folders (e.g. photo uploads).
+    pathPattern: /(^|\/)(recordings?|screen-?capture|capture)(\/|[.-])/i,
     contentPattern: /\bMediaRecorder\b|getUserMedia|getDisplayMedia/
   },
   {
@@ -21656,7 +22064,8 @@ var CATALOG = [
   {
     id: "ai-integration",
     deps: ["openai", "@anthropic-ai/sdk", "replicate", "together-ai", "cohere-ai", "@google/generative-ai", "langchain"],
-    pathPattern: /(^|\/)(ai|llm|agents?|completions?)(\/|[.-])/i,
+    // Require a directory segment so the AGENTS.md convention doesn't read as AI.
+    pathPattern: /(^|\/)(ai|llm|agents?|completions?)\//i,
     contentPattern: /openai\.|anthropic\.|chat\.completions|messages\.create|generateText|replicate\.run/i
   },
   {
@@ -21696,7 +22105,7 @@ function detectCapabilities(input) {
     if (contentSeen.size === wantContent.length) break;
     let content;
     try {
-      content = (0, import_node_fs2.readFileSync)((0, import_node_path2.join)(projectRoot, rel), "utf8");
+      content = (0, import_node_fs8.readFileSync)((0, import_node_path3.join)(projectRoot, rel), "utf8");
     } catch {
       continue;
     }
@@ -21730,12 +22139,12 @@ function confidenceFor(hasDep, hasPath, hasContent) {
 
 // src/core/context/changed-files.ts
 var import_node_child_process = require("node:child_process");
-var import_node_fs4 = require("node:fs");
-var import_node_path4 = require("node:path");
+var import_node_fs10 = require("node:fs");
+var import_node_path5 = require("node:path");
 
 // src/core/context/file-discovery.ts
-var import_node_fs3 = require("node:fs");
-var import_node_path3 = require("node:path");
+var import_node_fs9 = require("node:fs");
+var import_node_path4 = require("node:path");
 var import_ignore = __toESM(require_ignore(), 1);
 var ALWAYS_SKIP_DIRS = /* @__PURE__ */ new Set([
   ".git",
@@ -21773,7 +22182,7 @@ var MAX_FILES = 5e3;
 function discoverFiles(projectRoot) {
   const ig = (0, import_ignore.default)();
   try {
-    ig.add((0, import_node_fs3.readFileSync)((0, import_node_path3.join)(projectRoot, ".gitignore"), "utf8"));
+    ig.add((0, import_node_fs9.readFileSync)((0, import_node_path4.join)(projectRoot, ".gitignore"), "utf8"));
   } catch {
   }
   const results = [];
@@ -21782,13 +22191,13 @@ function discoverFiles(projectRoot) {
     const dir = stack.pop();
     let entries;
     try {
-      entries = (0, import_node_fs3.readdirSync)(dir, { withFileTypes: true });
+      entries = (0, import_node_fs9.readdirSync)(dir, { withFileTypes: true });
     } catch {
       continue;
     }
     for (const entry of entries) {
-      const abs = (0, import_node_path3.join)(dir, entry.name);
-      const rel = (0, import_node_path3.relative)(projectRoot, abs).split(import_node_path3.sep).join("/");
+      const abs = (0, import_node_path4.join)(dir, entry.name);
+      const rel = (0, import_node_path4.relative)(projectRoot, abs).split(import_node_path4.sep).join("/");
       if (entry.isDirectory()) {
         if (ALWAYS_SKIP_DIRS.has(entry.name)) continue;
         if (ig.ignores(rel + "/")) continue;
@@ -21799,7 +22208,7 @@ function discoverFiles(projectRoot) {
       if (ig.ignores(rel)) continue;
       if (!isScannable(entry.name)) continue;
       try {
-        if ((0, import_node_fs3.statSync)(abs).size > MAX_FILE_BYTES) continue;
+        if ((0, import_node_fs9.statSync)(abs).size > MAX_FILE_BYTES) continue;
       } catch {
         continue;
       }
@@ -21845,7 +22254,7 @@ function gitChangedFiles(projectRoot, commit) {
     const paths = new Set(
       [...diffed.split("\n"), ...untracked.split("\n")].filter(Boolean)
     );
-    return [...paths].filter((p) => (0, import_node_fs4.existsSync)((0, import_node_path4.join)(projectRoot, p))).sort();
+    return [...paths].filter((p) => (0, import_node_fs10.existsSync)((0, import_node_path5.join)(projectRoot, p))).sort();
   } catch {
     return null;
   }
@@ -21853,7 +22262,7 @@ function gitChangedFiles(projectRoot, commit) {
 function mtimeChangedFiles(projectRoot, since) {
   return discoverFiles(projectRoot).filter((rel) => {
     try {
-      return (0, import_node_fs4.statSync)((0, import_node_path4.join)(projectRoot, rel)).mtimeMs > since.getTime();
+      return (0, import_node_fs10.statSync)((0, import_node_path5.join)(projectRoot, rel)).mtimeMs > since.getTime();
     } catch {
       return false;
     }
@@ -21863,9 +22272,207 @@ function git(cwd, args) {
   return (0, import_node_child_process.execFileSync)("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
 }
 
+// src/core/context/context-detector.ts
+var import_node_fs11 = require("node:fs");
+var import_node_path6 = require("node:path");
+var CATALOG2 = [
+  // ── What the data is worth protecting (dataSensitivity) ──────────────────
+  {
+    dimension: "dataSensitivity",
+    value: "payment-data",
+    deps: ["stripe", "@stripe/stripe-js", "razorpay", "braintree", "square", "paypal-rest-sdk"],
+    contentPattern: /PaymentIntent|\bcvv\b|cardNumber|\bStripe\(/i,
+    promptPattern: /payment|checkout|billing|subscription|card\b/i
+  },
+  {
+    dimension: "dataSensitivity",
+    value: "credentials",
+    contentPattern: /passwordHash|hashedPassword|bcrypt|argon2|\bpassword\b/i,
+    pathPattern: /(^|\/)(auth|login|password|session)(\/|[.-])/i,
+    promptPattern: /\b(login|sign[ -]?in|sign[ -]?up|auth|password)\b/i
+  },
+  {
+    dimension: "dataSensitivity",
+    value: "personal-data",
+    contentPattern: /\b(firstName|lastName|fullName|phoneNumber|dateOfBirth|\bdob\b|address|postalCode)\b/i,
+    promptPattern: /\b(profile|personal|address|phone|contact)\b/i
+  },
+  {
+    dimension: "dataSensitivity",
+    value: "location-data",
+    contentPattern: /\b(latitude|longitude|geolocation|coordinates|geohash)\b/i,
+    promptPattern: /\b(map|location|geo|nearby)\b/i
+  },
+  {
+    dimension: "dataSensitivity",
+    value: "health-data",
+    contentPattern: /\b(diagnosis|prescription|patient|medicalRecord|healthRecord|bloodType)\b/i,
+    promptPattern: /\b(health|medical|patient|clinical)\b/i
+  },
+  // ── Who uses it (userPopulation) ─────────────────────────────────────────
+  {
+    dimension: "userPopulation",
+    value: "authenticated",
+    deps: ["next-auth", "@auth/core", "@supabase/supabase-js", "jsonwebtoken", "passport", "lucia", "better-auth", "@clerk/nextjs", "firebase-admin"],
+    pathPattern: /(^|\/)(auth|login|sign-in|sign-up|session|account)(\/|[.-])/i,
+    contentPattern: /getServerSession|requireAuth|isAuthenticated|verifyToken/i
+  },
+  {
+    dimension: "userPopulation",
+    value: "role-based",
+    deps: ["@casl/ability", "accesscontrol"],
+    pathPattern: /(^|\/)(rbac|roles?|permissions?)(\/|[.-])/i,
+    contentPattern: /\bRBAC\b|hasPermission|hasRole|['"](admin|seller|buyer|owner|moderator)['"]/,
+    promptPattern: /\b(role|permission|rbac|admin|seller|buyer)\b/i
+  },
+  {
+    dimension: "userPopulation",
+    value: "admin-surface",
+    pathPattern: /(^|\/)admin(\/|[.-])/i,
+    contentPattern: /isAdmin|makeAdmin|adminRouter|requireAdmin/i,
+    promptPattern: /\badmin(istrator)?\b/i
+  },
+  // ── What kind of app it is (appClass) ────────────────────────────────────
+  {
+    dimension: "appClass",
+    value: "realtime-app",
+    deps: ["socket.io", "ws", "pusher", "ably"],
+    contentPattern: /socket\.(on|emit)\(|\bio\.on\(|new WebSocket\(/,
+    promptPattern: /\b(chat|real[ -]?time|messaging|presence|live)\b/i
+  },
+  {
+    dimension: "appClass",
+    value: "marketplace",
+    pathPattern: /(^|\/)(listings?|vehicles?|sellers?|buyers?|marketplace)(\/|[.-])/i,
+    promptPattern: /\b(marketplace|listing|classifieds?)\b/i
+  },
+  {
+    dimension: "appClass",
+    value: "ecommerce",
+    deps: ["stripe", "razorpay"],
+    pathPattern: /(^|\/)(cart|checkout|orders?|products?|store)(\/|[.-])/i,
+    promptPattern: /\b(store|shop|e-?commerce|cart|checkout)\b/i
+  },
+  {
+    dimension: "appClass",
+    value: "api-backend",
+    pathPattern: /(^|\/)(routes?|controllers?|middlewares?)(\/|[.-])/i,
+    promptPattern: /\b(api|backend|endpoint|rest)\b/i
+  },
+  // ── One deployment, many isolated customers (tenancy) ────────────────────
+  {
+    dimension: "tenancy",
+    value: "multi-tenant",
+    contentPattern: /\b(tenantId|organizationId|orgId|workspaceId)\b/,
+    pathPattern: /(^|\/)(tenants?|organizations?|workspaces?)(\/|[.-])/i,
+    promptPattern: /\b(multi[ -]?tenant|tenant|organization|workspace|team)\b/i
+  },
+  // ── Where its users are (jurisdiction — best-effort, usually low signal) ──
+  {
+    dimension: "jurisdiction",
+    value: "eu",
+    contentPattern: /\bGDPR\b|\bEUR\b|europe/i,
+    promptPattern: /\b(gdpr|eu|europe(an)?)\b/i
+  },
+  {
+    dimension: "jurisdiction",
+    value: "india",
+    deps: ["razorpay"],
+    contentPattern: /\bINR\b|rupee/i,
+    promptPattern: /\bindia\b/i
+  }
+];
+var SCANNABLE_FILE = /\.(js|jsx|ts|tsx|mjs|cjs|prisma|sql)$/;
+var MAX_CONTENT_FILES2 = 400;
+function detectContext(input) {
+  const { projectRoot, files, techStack, prompt } = input;
+  const acc = /* @__PURE__ */ new Map();
+  const key = (r) => `${r.dimension}:${r.value}`;
+  const record2 = (r, k, signal) => {
+    let e = acc.get(key(r));
+    if (!e) {
+      e = { signals: [], dep: false, path: false, content: false, prompt: false };
+      acc.set(key(r), e);
+    }
+    e[k] = true;
+    e.signals.push(signal);
+  };
+  for (const rule of CATALOG2) {
+    for (const dep of rule.deps ?? []) {
+      if (hasDependency(techStack, dep)) record2(rule, "dep", `"${dep}" (dependency)`);
+    }
+    if (rule.pathPattern) {
+      const hit = files.find((f) => rule.pathPattern.test(f));
+      if (hit) record2(rule, "path", `"${hit}" (path)`);
+    }
+    if (prompt && rule.promptPattern?.test(prompt)) {
+      record2(rule, "prompt", "the user's request");
+    }
+  }
+  const targets = files.filter((f) => SCANNABLE_FILE.test(f)).slice(0, MAX_CONTENT_FILES2);
+  const wantContent = CATALOG2.filter((r) => r.contentPattern);
+  const contentSeen = /* @__PURE__ */ new Set();
+  for (const rel of targets) {
+    if (contentSeen.size === wantContent.length) break;
+    let content;
+    try {
+      content = (0, import_node_fs11.readFileSync)((0, import_node_path6.join)(projectRoot, rel), "utf8");
+    } catch {
+      continue;
+    }
+    for (const rule of wantContent) {
+      if (contentSeen.has(key(rule))) continue;
+      const m = rule.contentPattern.exec(content);
+      if (m) {
+        record2(rule, "content", `${m[0]} in ${rel}`);
+        contentSeen.add(key(rule));
+      }
+    }
+  }
+  const out = [];
+  for (const rule of CATALOG2) {
+    const e = acc.get(key(rule));
+    if (!e) continue;
+    out.push({
+      dimension: rule.dimension,
+      value: rule.value,
+      confidence: confidenceFor2(e),
+      signals: e.signals
+    });
+  }
+  return out.sort((a, b) => CONFIDENCE_RANK2[a.confidence] - CONFIDENCE_RANK2[b.confidence]);
+}
+function toFingerprintContext(signals, stack = []) {
+  const context = {};
+  const arrayOf = (d) => {
+    const vals = signals.filter((s) => s.dimension === d).map((s) => s.value);
+    return vals.length ? vals : void 0;
+  };
+  const strongest = (d) => signals.find((s) => s.dimension === d)?.value;
+  const tenancy = strongest("tenancy");
+  if (tenancy === "multi-tenant") context.tenancy = "multi-tenant";
+  const jurisdiction = arrayOf("jurisdiction");
+  if (jurisdiction) context.jurisdiction = jurisdiction;
+  const dataSensitivity = arrayOf("dataSensitivity");
+  if (dataSensitivity) context.dataSensitivity = dataSensitivity;
+  const userPopulation = arrayOf("userPopulation");
+  if (userPopulation) context.userPopulation = userPopulation;
+  const appClass = strongest("appClass");
+  if (appClass) context.appClass = appClass;
+  if (stack.length) context.stack = stack;
+  return context;
+}
+var CONFIDENCE_RANK2 = { high: 0, medium: 1, low: 2 };
+function confidenceFor2(e) {
+  const weak = [e.path, e.content, e.prompt].filter(Boolean).length;
+  if (e.dep && weak >= 1) return "high";
+  if (e.dep || weak >= 2) return "medium";
+  return "low";
+}
+
 // src/core/deterministic/quick-checks.ts
-var import_node_fs5 = require("node:fs");
-var import_node_path5 = require("node:path");
+var import_node_fs12 = require("node:fs");
+var import_node_path7 = require("node:path");
 var RULES = [
   {
     code: "hardcoded-secret",
@@ -21931,7 +22538,7 @@ function runQuickChecksOnFiles(projectRoot, relPaths) {
   for (const path of relPaths) {
     let content;
     try {
-      content = (0, import_node_fs5.readFileSync)((0, import_node_path5.join)(projectRoot, path), "utf8");
+      content = (0, import_node_fs12.readFileSync)((0, import_node_path7.join)(projectRoot, path), "utf8");
     } catch {
       continue;
     }
@@ -21944,34 +22551,154 @@ function isCommentLine(line) {
   return t.startsWith("//") || t.startsWith("/*") || t.startsWith("*") || t.startsWith("#");
 }
 
-// src/core/semantic/director.ts
-function buildDirective(capabilities, mode) {
-  return { mode, capabilities, instruction: instructionFor(capabilities, mode) };
+// src/core/kb/match.ts
+var ARRAY_DIMS = ["dataSensitivity", "userPopulation", "jurisdiction"];
+function fitContext(reqContext, appContext) {
+  let matched = 0;
+  let specified = 0;
+  let conflict = false;
+  for (const dim of ["tenancy", "appClass"]) {
+    const want = reqContext[dim];
+    if (!want) continue;
+    specified++;
+    if (appContext[dim] === want) matched++;
+    else conflict = true;
+  }
+  for (const dim of ARRAY_DIMS) {
+    const want = reqContext[dim];
+    if (!want?.length) continue;
+    const have = appContext[dim] ?? [];
+    for (const v of want) {
+      specified++;
+      if (have.includes(v)) matched++;
+    }
+  }
+  return { matched, specified, conflict };
 }
-function instructionFor(capabilities, mode) {
-  const journal = " Record what you surface in .anneal/findings.md as a tracked checklist.";
+function matchRequirements(snapshot, input) {
+  const asks = new Set(input.capabilities);
+  const out = [];
+  for (const r of snapshot.requirements) {
+    if (!asks.has(r.ask)) continue;
+    const fit = fitContext(r.context, input.context);
+    if (fit.conflict) continue;
+    out.push({ ...r, relevance: r.score + 0.3 * fit.matched, matched: fit.matched, specified: fit.specified });
+  }
+  return out.sort(
+    (a, b) => b.relevance - a.relevance || a.ask.localeCompare(b.ask) || a.id.localeCompare(b.id)
+  );
+}
+
+// src/core/kb/snapshot.ts
+var import_node_fs13 = require("node:fs");
+var import_node_path8 = require("node:path");
+
+// src/kb/schema.ts
+var severitySchema2 = external_exports.enum(["critical", "high", "medium", "low"]);
+var seedRowSchema = external_exports.object({
+  /** Optional stable id; derived from ask + requirement when omitted. */
+  id: external_exports.string().optional(),
+  /** The capability this requirement answers to, e.g. "payments". */
+  ask: external_exports.string().min(1),
+  /** The partial fingerprint this requirement is scoped to — only the dimensions that matter. */
+  context: fingerprintContextSchema.optional().default({}),
+  requirement: external_exports.string().min(1),
+  severity: severitySchema2,
+  /** Why it matters, ideally a concrete failure scenario. */
+  rationale: external_exports.string().optional(),
+  /** Prior strength. Seeds default to 1; influence is meant to decay as real data arrives. */
+  weight: external_exports.number().positive().optional().default(1)
+}).strict();
+var compiledRequirementSchema = external_exports.object({
+  id: external_exports.string(),
+  ask: external_exports.string(),
+  context: fingerprintContextSchema,
+  requirement: external_exports.string(),
+  severity: severitySchema2,
+  rationale: external_exports.string().optional(),
+  weight: external_exports.number(),
+  /** Where the row came from. Only "seed" today; "observed"/"mixed" once uploads feed compile. */
+  source: external_exports.enum(["seed", "observed", "mixed"]),
+  /** Ranking key — higher is surfaced first. Severity dominates; weight breaks ties. */
+  score: external_exports.number()
+}).strict();
+var snapshotSchema = external_exports.object({
+  version: external_exports.number(),
+  generatedAt: external_exports.string(),
+  requirements: external_exports.array(compiledRequirementSchema)
+}).strict();
+
+// src/core/kb/snapshot.ts
+var EMPTY = { version: 0, generatedAt: "", requirements: [] };
+var cache = /* @__PURE__ */ new Map();
+function resolveSnapshotPath(explicit) {
+  if (explicit) return (0, import_node_path8.resolve)(explicit);
+  if (process.env.ANNEAL_SNAPSHOT_PATH) return (0, import_node_path8.resolve)(process.env.ANNEAL_SNAPSHOT_PATH);
+  if (process.env.CLAUDE_PLUGIN_ROOT) return (0, import_node_path8.join)(process.env.CLAUDE_PLUGIN_ROOT, "kb", "snapshot.json");
+  return (0, import_node_path8.resolve)(process.cwd(), "plugin", "kb", "snapshot.json");
+}
+function loadSnapshot(explicit) {
+  const path = resolveSnapshotPath(explicit);
+  const cached2 = cache.get(path);
+  if (cached2) return cached2;
+  if (!(0, import_node_fs13.existsSync)(path)) return EMPTY;
+  try {
+    const snapshot = snapshotSchema.parse(JSON.parse((0, import_node_fs13.readFileSync)(path, "utf8")));
+    cache.set(path, snapshot);
+    return snapshot;
+  } catch {
+    return EMPTY;
+  }
+}
+
+// src/core/semantic/director.ts
+function buildDirective(capabilities, mode, context, corpusCount = 0) {
+  return { mode, capabilities, instruction: instructionFor(capabilities, mode, context, corpusCount) };
+}
+function instructionFor(capabilities, mode, context, corpusCount = 0) {
+  const journal = " Track each requirement you surface by calling anneal_record \u2014 Anneal maintains the findings journal for you.";
+  const setting = contextClause(context);
+  const research = researchClause(corpusCount);
   if (mode === "build-intent") {
-    return "The user intends to build the capabilities below. Before and while writing code, apply your Anneal readiness lenses and list the production requirements to include from the start \u2014 explain each with a concrete failure scenario and offer to build them." + journal;
+    return "The user intends to build the capabilities below. Before and while writing code, apply your Anneal readiness lenses and list the production requirements to include from the start \u2014 explain each with a concrete failure scenario and offer to build them." + setting + research + journal;
   }
   if (capabilities.length === 0) {
-    return "No specific capability detected with confidence. Reason about the app's overall production readiness from the code and the user's intent, applying your Anneal readiness lenses." + journal;
+    return "No specific capability detected with confidence. Reason about the app's overall production readiness from the code and the user's intent, applying your Anneal readiness lenses." + setting + research + journal;
   }
-  return "Apply your Anneal readiness review to the capabilities below against this codebase. Report only the requirements that are MISSING; verify low-confidence capabilities before asserting." + journal;
+  return "Apply your Anneal readiness review to the capabilities below against this codebase. Report only the requirements that are MISSING; verify low-confidence capabilities before asserting." + setting + research + journal;
+}
+function researchClause(corpusCount) {
+  if (corpusCount > 0) {
+    return ` Anneal's corpus lists ${corpusCount} production requirement(s) for this fingerprint in \`corpus\` \u2014 a researched baseline, not a checklist. Verify each against THIS code, then research (on your own tokens) what this specific app needs beyond the baseline, and surface every gap.`;
+  }
+  return " Research (on your own tokens) the production requirements this specific app needs against its code, and surface every gap.";
+}
+function contextClause(context) {
+  if (!context) return "";
+  const parts = [];
+  if (context.tenancy) parts.push(context.tenancy);
+  if (context.appClass) parts.push(context.appClass);
+  if (context.dataSensitivity?.length) parts.push(`handling ${context.dataSensitivity.join(", ")}`);
+  if (context.userPopulation?.length) parts.push(`users: ${context.userPopulation.join(", ")}`);
+  if (context.jurisdiction?.length) parts.push(`jurisdiction: ${context.jurisdiction.join(", ")}`);
+  if (parts.length === 0) return "";
+  return ` Weigh the requirements for THIS app's context (${parts.join("; ")}) \u2014 they differ by context.`;
 }
 
 // src/core/shared/severity.ts
-var RANK = {
+var RANK2 = {
   critical: 0,
   high: 1,
   medium: 2,
   low: 3
 };
 function compareSeverity(a, b) {
-  return RANK[a] - RANK[b];
+  return RANK2[a] - RANK2[b];
 }
 
 // src/core/shared/token-budget.ts
 var DEFAULT_TOKEN_BUDGET = 300;
+var FINDINGS_TOKEN_BUDGET = 150;
 function estimateTokens(text) {
   return Math.ceil(text.length / 4);
 }
@@ -21985,13 +22712,23 @@ function fitToBudget(items, render, maxTokens = DEFAULT_TOKEN_BUDGET) {
 
 // src/core/review.ts
 var SOURCE_FILE2 = /\.(js|jsx|ts|tsx|mjs|cjs)$/;
+var CORPUS_LIMIT = 6;
 function runReview(input) {
   const started = performance.now();
   const mode = input.mode ?? "review";
   const files = discoverFiles(input.projectRoot);
   const techStack = detectTechStack(input.projectRoot);
   const capabilities = detectCapabilities({ projectRoot: input.projectRoot, files, techStack });
-  const directive = buildDirective(capabilities, mode);
+  const context = toFingerprintContext(
+    detectContext({ projectRoot: input.projectRoot, files, techStack, prompt: input.prompt }),
+    techStack.names
+  );
+  const matched = matchRequirements(loadSnapshot(input.snapshotPath), {
+    capabilities: capabilities.map((c) => c.id),
+    context
+  });
+  const corpus = matched.slice(0, CORPUS_LIMIT).map((m) => ({ ask: m.ask, requirement: m.requirement, severity: m.severity }));
+  const directive = buildDirective(capabilities, mode, context, corpus.length);
   const tapTargets = resolveTapTargets(input, files.filter((f) => SOURCE_FILE2.test(f)));
   const allFindings = dedupe(runQuickChecksOnFiles(input.projectRoot, tapTargets)).sort(
     (a, b) => compareSeverity(a.severity, b.severity) || a.file.localeCompare(b.file) || a.line - b.line
@@ -21999,17 +22736,22 @@ function runReview(input) {
   const shell = {
     tech_stack: techStack.names,
     capabilities,
+    context,
+    corpus,
     directive: { mode: directive.mode, instruction: directive.instruction },
     meta: { files_scanned: files.length }
   };
+  const shellTokens = estimateTokens(JSON.stringify({ ...shell, findings: [] }));
   const kept = fitToBudget(
     allFindings,
     (f) => JSON.stringify({ ...shell, findings: f }),
-    DEFAULT_TOKEN_BUDGET
+    shellTokens + FINDINGS_TOKEN_BUDGET
   );
   const payload = {
     tech_stack: techStack.names,
     capabilities,
+    context,
+    corpus,
     directive: { mode: directive.mode, instruction: directive.instruction },
     findings: allFindings.slice(0, kept),
     meta: {
@@ -22045,6 +22787,18 @@ function dedupe(findings) {
   return out;
 }
 
+// src/core/shared/finding-identity.ts
+var import_node_crypto2 = require("node:crypto");
+function contentHash(lineContent) {
+  return (0, import_node_crypto2.createHash)("sha256").update(lineContent.trim()).digest("hex");
+}
+function identityKey(input) {
+  return `${input.code}:${input.file}:${input.contentHash}`;
+}
+function findingId(input) {
+  return (0, import_node_crypto2.createHash)("sha256").update(identityKey(input)).digest("hex").slice(0, 8);
+}
+
 // src/mcp/tools/anneal-review.ts
 var annealReviewInput = {
   project_path: external_exports.string().describe("Absolute path to the project root directory"),
@@ -22053,21 +22807,36 @@ var annealReviewInput = {
   ),
   full: external_exports.boolean().optional().describe(
     "Scan the whole codebase. Omit (default) to review only files changed since the last commit \u2014 Anneal auto-detects them, you never list files. Set true ONLY when the user explicitly asks for a full/whole-codebase review."
+  ),
+  intent: external_exports.string().optional().describe(
+    "On build-intent, a short paraphrase of what the user asked to build (e.g. 'a multi-tenant billing dashboard'). Sharpens Anneal's read of the app's context. Omit for a plain review."
   )
 };
 function handleAnnealReview(args) {
+  ensureLedger(args.project_path);
   const payload = runReview({
     projectRoot: args.project_path,
     mode: args.mode ?? "review",
-    full: args.full
+    full: args.full,
+    prompt: args.intent
   });
+  setContext(args.project_path, payload.context);
+  for (const f of payload.findings) seedTapFinding(args.project_path, f);
   return {
     content: [{ type: "text", text: JSON.stringify(payload) }]
   };
 }
+function seedTapFinding(projectRoot, f) {
+  upsertFinding(projectRoot, {
+    id: findingId({ code: f.code, file: f.file, contentHash: contentHash(`${f.file}:${f.line}`) }),
+    requirement: f.label,
+    severity: f.severity,
+    location: `${f.file}:${f.line}`
+  });
+}
 
 // src/mcp/server.ts
-var INSTRUCTIONS = `Anneal is a production-readiness observer. It tells you what a project *does* (capabilities) and directs you to reason about what it *needs*. Call anneal_review with mode "build-intent" when the user asks to build something, and mode "review" after significant changes (it reviews only changed files by default; pass full:true only when the user wants a whole-codebase review). Surface every requirement that applies to what the user is actually building \u2014 scoped to the request, never capped at a round number (if 13 apply, give 13). Present each thoroughly and in plain language, with why it matters and a concrete failure scenario. Track findings in .anneal/findings.md as a checklist (states: suggested/approved/done/deferred/dismissed) and honor its build mode (pause = confirm which to include before building; auto = build with safeguards). Weave approved requirements INTO the feature they belong to as you build it \u2014 don't make them a prerequisite phase before building starts. For the full method and the findings.md format, use the "production-readiness" skill.`;
+var INSTRUCTIONS = `Anneal is a production-readiness observer. It tells you what a project *does* (capabilities) and directs you to reason about what it *needs*. Call anneal_review with mode "build-intent" when the user asks to build something, and mode "review" after significant changes (it reviews only changed files by default; pass full:true only when the user wants a whole-codebase review). Surface every requirement that applies to what the user is actually building \u2014 scoped to the request, never capped at a round number (if 13 apply, give 13). Present each thoroughly and in plain language, with why it matters and a concrete failure scenario. Track each requirement you surface by calling anneal_record (states: suggested/approved/done/deferred/dismissed) \u2014 Anneal maintains .anneal/findings.md for you; never edit it by hand. Honor the build mode in .anneal/config.json (pause = confirm which to include before building; auto = build with safeguards). Weave approved requirements INTO the feature they belong to as you build it \u2014 don't make them a prerequisite phase before building starts. For the full method, use the "production-readiness" skill.`;
 function createServer() {
   const server = new McpServer(
     { name: "anneal", version: "0.1.0" },
@@ -22087,6 +22856,21 @@ function createServer() {
       }
     },
     async (args) => handleAnnealReview(args)
+  );
+  server.registerTool(
+    "anneal_record",
+    {
+      title: "Anneal record a tracked requirement",
+      description: "Track a production requirement you surfaced, or move one you already tracked to a new state (suggested/approved/done/deferred/dismissed). Anneal maintains .anneal/findings.md from these calls \u2014 never edit that file by hand. Include requirement + severity the first time you record a finding.",
+      inputSchema: annealRecordInput,
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false
+      }
+    },
+    async (args) => handleAnnealRecord(args)
   );
   return server;
 }

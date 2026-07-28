@@ -1,0 +1,268 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-27T07:36:17.551Z",
+  "requirements": [
+    {
+      "id": "payments-never-store-raw-card-numbers-tokenize-through-the-provider-p",
+      "ask": "payments",
+      "context": {
+        "dataSensitivity": [
+          "payment-data"
+        ]
+      },
+      "requirement": "Never store raw card numbers — tokenize through the provider (PCI scope)",
+      "severity": "critical",
+      "rationale": "Touching raw PANs pulls you into full PCI-DSS scope and makes a breach catastrophic. Let the provider hold the card and keep only its token.",
+      "weight": 1,
+      "source": "seed",
+      "score": 4.5
+    },
+    {
+      "id": "user-accounts-authorize-resource-access-by-ownership-not-just-by-a-valid-s",
+      "ask": "user-accounts",
+      "context": {
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Authorize resource access by ownership, not just by a valid session",
+      "severity": "critical",
+      "rationale": "A logged-in user changing an id in the URL (IDOR) reaches another user's record unless you check they own it, not merely that they're signed in.",
+      "weight": 1,
+      "source": "seed",
+      "score": 4.5
+    },
+    {
+      "id": "user-accounts-hash-passwords-with-bcrypt-or-argon2-never-store-them-revers",
+      "ask": "user-accounts",
+      "context": {
+        "dataSensitivity": [
+          "credentials"
+        ],
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Hash passwords with bcrypt or argon2 — never store them reversibly",
+      "severity": "critical",
+      "rationale": "A database leak with plaintext or encrypted-but-reversible passwords hands the attacker every account, plus every place users reused that password.",
+      "weight": 1,
+      "source": "seed",
+      "score": 4.5
+    },
+    {
+      "id": "user-accounts-scope-every-query-by-tenant-so-one-customer-can-never-read-a",
+      "ask": "user-accounts",
+      "context": {
+        "tenancy": "multi-tenant",
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Scope every query by tenant so one customer can never read another's data",
+      "severity": "critical",
+      "rationale": "In a shared database, a missing tenant filter turns any list or detail endpoint into a cross-tenant data leak.",
+      "weight": 1,
+      "source": "seed",
+      "score": 4.5
+    },
+    {
+      "id": "file-uploads-authorize-downloads-don-t-rely-on-an-unguessable-url-alone",
+      "ask": "file-uploads",
+      "context": {},
+      "requirement": "Authorize downloads — don't rely on an unguessable URL alone",
+      "severity": "high",
+      "rationale": "\"Secret\" URLs leak through referrers, logs, and shared links. Check the requester is allowed to see the file before serving it.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "file-uploads-store-uploads-outside-the-web-root-object-storage-with-signe",
+      "ask": "file-uploads",
+      "context": {},
+      "requirement": "Store uploads outside the web root (object storage with signed URLs)",
+      "severity": "high",
+      "rationale": "Files served straight from a public directory can be executed by the server or enumerated by anyone; object storage with short-lived signed URLs closes both.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "file-uploads-validate-file-type-and-size-on-the-server-not-just-in-the-br",
+      "ask": "file-uploads",
+      "context": {},
+      "requirement": "Validate file type and size on the server, not just in the browser",
+      "severity": "high",
+      "rationale": "Client checks are trivially bypassed with a direct request. Unbounded size is a cheap denial-of-service; unchecked type lets a script land where images were expected.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "payments-handle-provider-webhooks-for-async-events-disputes-refunds-f",
+      "ask": "payments",
+      "context": {
+        "dataSensitivity": [
+          "payment-data"
+        ],
+        "appClass": "ecommerce"
+      },
+      "requirement": "Handle provider webhooks for async events (disputes, refunds, failed captures)",
+      "severity": "high",
+      "rationale": "Charges settle, fail, and get disputed after the request returns. With no webhook handler you learn about a chargeback when the money is already gone.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "payments-send-an-idempotency-key-with-every-charge-so-a-retry-can-t-d",
+      "ask": "payments",
+      "context": {
+        "dataSensitivity": [
+          "payment-data"
+        ]
+      },
+      "requirement": "Send an idempotency key with every charge so a retry can't double-charge",
+      "severity": "high",
+      "rationale": "A dropped response or an impatient user's double-click bills the card twice; an idempotency key makes the retry a no-op.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "payments-treat-the-provider-as-the-source-of-truth-for-payment-state-",
+      "ask": "payments",
+      "context": {
+        "dataSensitivity": [
+          "payment-data"
+        ]
+      },
+      "requirement": "Treat the provider as the source of truth for payment state, not the client",
+      "severity": "high",
+      "rationale": "A client POST saying \"paid\" can be forged or replayed. Confirm the charge server-side (or via webhook) before granting the paid thing.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "payments-validate-amount-and-currency-server-side-against-the-order",
+      "ask": "payments",
+      "context": {
+        "dataSensitivity": [
+          "payment-data"
+        ]
+      },
+      "requirement": "Validate amount and currency server-side against the order",
+      "severity": "high",
+      "rationale": "If the amount comes from the request body, a user can pay 1 cent for a $1,000 order. Compute the charge from server-held prices.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "user-accounts-make-password-reset-tokens-single-use-and-short-lived",
+      "ask": "user-accounts",
+      "context": {
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Make password-reset tokens single-use and short-lived",
+      "severity": "high",
+      "rationale": "A reset link that never expires or works twice is a permanent backdoor if it leaks from an inbox or a log.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "user-accounts-rate-limit-login-and-signup-to-blunt-credential-stuffing-and",
+      "ask": "user-accounts",
+      "context": {
+        "dataSensitivity": [
+          "credentials"
+        ],
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Rate-limit login and signup to blunt credential stuffing and brute force",
+      "severity": "high",
+      "rationale": "Unlimited login attempts let attackers test leaked password lists against your users at machine speed.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "user-accounts-set-session-cookies-httponly-secure-and-samesite",
+      "ask": "user-accounts",
+      "context": {
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Set session cookies httpOnly, secure, and sameSite",
+      "severity": "high",
+      "rationale": "A token readable by JavaScript is stealable via XSS; one sent over http or cross-site is stealable on the wire or via CSRF.",
+      "weight": 1,
+      "source": "seed",
+      "score": 3.5
+    },
+    {
+      "id": "file-uploads-enforce-a-per-user-upload-quota-and-rate-limit",
+      "ask": "file-uploads",
+      "context": {},
+      "requirement": "Enforce a per-user upload quota and rate limit",
+      "severity": "medium",
+      "rationale": "Without a cap, one user (or one script) fills your storage and your bill.",
+      "weight": 1,
+      "source": "seed",
+      "score": 2.5
+    },
+    {
+      "id": "payments-show-clear-handling-for-declined-and-failed-payments",
+      "ask": "payments",
+      "context": {
+        "dataSensitivity": [
+          "payment-data"
+        ]
+      },
+      "requirement": "Show clear handling for declined and failed payments",
+      "severity": "medium",
+      "rationale": "Cards get declined constantly. Without a retry path and a plain-language message, the user assumes your app is broken and leaves.",
+      "weight": 1,
+      "source": "seed",
+      "score": 2.5
+    },
+    {
+      "id": "user-accounts-verify-email-ownership-before-granting-a-usable-account",
+      "ask": "user-accounts",
+      "context": {
+        "userPopulation": [
+          "authenticated"
+        ]
+      },
+      "requirement": "Verify email ownership before granting a usable account",
+      "severity": "medium",
+      "rationale": "Without verification, anyone signs up as anyone — enabling impersonation and poisoning your user data and deliverability.",
+      "weight": 1,
+      "source": "seed",
+      "score": 2.5
+    },
+    {
+      "id": "file-uploads-strip-exif-and-metadata-from-uploaded-images",
+      "ask": "file-uploads",
+      "context": {
+        "dataSensitivity": [
+          "personal-data"
+        ]
+      },
+      "requirement": "Strip EXIF and metadata from uploaded images",
+      "severity": "low",
+      "rationale": "Photos carry GPS coordinates and device ids; re-serving them as-is quietly publishes where and on what your users took the picture.",
+      "weight": 1,
+      "source": "seed",
+      "score": 1.5
+    }
+  ]
+}

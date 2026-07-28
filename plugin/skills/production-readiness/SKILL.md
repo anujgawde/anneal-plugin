@@ -31,8 +31,19 @@ Lenses to apply to each capability:
 `anneal_review` returns:
 
 - `capabilities` — what the project does, with confidence and the signals that triggered detection. Low-confidence ones are guesses: verify against the code before asserting.
+- `context` — the app's system context (tenancy, data sensitivity, user population, app class, stack). This is the other half of the fingerprint: a requirement for a multi-tenant, payment-handling app is not the same as for a hobby app.
+- `corpus` — production requirements Anneal's learned corpus associates with this fingerprint. Treat these as a **researched baseline, not a checklist and not the whole answer**: verify each against THIS code, then research what this specific app needs *beyond* the baseline (see below).
 - `directive` — a short pointer describing what to reason about (its `mode` is `build-intent` or `review`).
 - `findings` — deterministic code-level issues Anneal verified (hardcoded secrets, CORS wildcards, SQL concatenation…). These are facts, not guesses.
+
+## Always research; the corpus sharpens the search
+
+The `corpus` is a head start, never a substitute for thinking. Whatever it contains (even nothing):
+
+- **Always reason about THIS app's specific production requirements** — from its code, its context, and the user's intent. The corpus is a floor, not a ceiling.
+- **Use the corpus to sharpen, not replace, that search.** It tells you what's usually needed for this kind of app so you don't miss the obvious; your job is to confirm each against the actual code and to find what's missing *beyond* it.
+- **Verify before asserting.** A corpus row is "usually needed here," not "this app lacks it." Check the code — if it's already handled, don't resurface it.
+- **Never serve the corpus verbatim as the finding set.** It's input to your reasoning, not the output.
 
 ## How to present
 
@@ -47,19 +58,19 @@ Lenses to apply to each capability:
 
 You are building the user's app **well** — not gating it. Once requirements are approved, weave each one **into the feature it belongs to as you build that feature**: build the upload endpoint *with* validation, the AI call *with* the key in an env var and rate limiting, the results view *with* the disclaimer. Do **not** front-load a separate "safeguards phase" or make the user clear a checklist before real building starts. The safeguards ship *alongside* the feature, not before it.
 
-## The findings journal (`.anneal/findings.md`)
+## The findings journal (`.anneal/`)
 
-Maintain a running record at `.anneal/findings.md` (create it if missing — `.anneal/` is gitignored, so it stays local). It's a **working checklist, not a source of truth**: a fresh `anneal_review` is always ground truth. It has two jobs — track each finding's state, and remember the user's build-mode preference.
+Anneal keeps a running record for you — **you don't write these files by hand.** Call the `anneal_record` tool and Anneal maintains the journal:
+- `findings.md` — the human-readable checklist, **rendered for you**. Read it; never edit it.
+- `store.json` — the structured source of truth behind it (Anneal's; leave it alone).
+- `config.json` — controls, including the build mode.
 
-### Header: build mode
-The header records the mode:
-```
-mode: pause
-```
-- **pause** (default) — surface requirements, ask which to include, and **wait** for the user before building.
-- **auto** — build them all with the safeguards baked in, no confirmation.
+`.anneal/` is gitignored, so it stays local. The journal is a **working checklist, not a source of truth** — a fresh `anneal_review` is always ground truth.
 
-If the user says "just build it with safeguards" (or similar), set `mode: auto`. If they say "ask me first," set it back to `mode: pause`. Honor whatever it currently says.
+### Recording a finding
+Track each requirement you surface with `anneal_record`:
+- **First time** — pass `finding_id` (a stable slug like `tenant-isolation`), `requirement`, `severity`, and `state: "suggested"`. Add `rationale` (the failure scenario), `capability`, and `location` when you have them.
+- **Later** — pass the same `finding_id` and the new `state` to move it. You don't repeat requirement/severity.
 
 ### Each finding has a state
 - **suggested** — surfaced, awaiting the user's call
@@ -68,27 +79,14 @@ If the user says "just build it with safeguards" (or similar), set `mode: auto`.
 - **deferred** — user skipped it for now → stays open, resurfaces later (see below)
 - **dismissed** — user said not applicable → keep it out of the way
 
-Edit items in place — don't duplicate or shuffle. If a `done` item regresses (reappears in a later review), flip it back to `approved`.
+Reuse the same `finding_id` to move an item — never create a duplicate. If a `done` item regresses (reappears in a later review), record it back to `approved`.
 
-### Suggested shape
-```markdown
-# Anneal — Findings
-mode: pause
-_Updated 2026-07-23_
+### Build mode
+The mode lives in `.anneal/config.json` under `findings.mode`:
+- **pause** (default) — surface requirements, ask which to include, and **wait** for the user before building.
+- **auto** — build them all with the safeguards baked in, no confirmation.
 
-## Open
-- [ ] 🔴 recording — no consent flow before capture (src/lib/recorder.ts) · why: illegal to record people without consent in many places · deferred
-- [ ] 🟠 payments — no webhook handler for refunds/disputes · suggested
-
-## Building
-- [ ] 🔴 secrets — move hardcoded API key to an env var (src/lib/openai.ts:3) · approved
-
-## Done
-- [x] 🟠 cors — restrict CORS to known origins (src/server.ts) · done 2026-07-23
-
-## Dismissed
-- no-tests — not applicable: early prototype
-```
+Honor whatever it says. If the user says "just build it with safeguards," set `findings.mode` to `"auto"` in `config.json`; if they say "ask me first," set it back to `"pause"`.
 
 ### When deferred items come back (the 3 resurface events)
 Deferred items never vanish — they wait in the journal and return when they matter:
