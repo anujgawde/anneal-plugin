@@ -1,6 +1,6 @@
 ---
 name: production-readiness
-description: How to reason about and present production-readiness gaps — the Anneal methodology, readiness lenses, and findings-journal rules. Use whenever the anneal_review tool returns capabilities or findings, when the user asks to build or add a feature (payments, auth, recording, uploads, email, real-time, AI, …), or when checking whether an app is ready for real users.
+description: How to reason about and present production-readiness gaps — the Anneal methodology, readiness lenses, and findings-journal rules. Use whenever the review tool returns capabilities or findings, when the user asks to build or add a feature (payments, auth, recording, uploads, email, real-time, AI, …), or when checking whether an app is ready for real users.
 ---
 
 # Anneal — production-readiness methodology
@@ -9,8 +9,8 @@ Anneal is a production-readiness observer running alongside this session. It tel
 
 ## When to consult Anneal
 
-- **On build intent** — when the user asks to build or add a feature (payments, auth, recording, uploads, email, real-time, AI, …), call `anneal_review` with `mode: "build-intent"` and `project_path` set to the project root **before writing code**. Present the requirements to include from the start.
-- **After changes** — after writing significant code, or when the user says "anneal review" / asks what Anneal found, call `anneal_review` with `mode: "review"`.
+- **On build intent** — when the user asks to build or add a feature (payments, auth, recording, uploads, email, real-time, AI, …), call `review` with `mode: "build-intent"` and `project_path` set to the project root **before writing code**. Present the requirements to include from the start.
+- **After changes** — after writing significant code, or when the user says "anneal review" / asks what Anneal found, call `review` with `mode: "review"`.
 - The PostToolUse tap may print a one-line notice after a write (e.g. a hardcoded secret). Mention it naturally when it appears.
 
 ## How to reason (the readiness lenses)
@@ -28,7 +28,7 @@ Lenses to apply to each capability:
 
 ## The review payload
 
-`anneal_review` returns:
+`review` returns:
 
 - `capabilities` — what the project does, with confidence and the signals that triggered detection. Low-confidence ones are guesses: verify against the code before asserting.
 - `context` — the app's system context (tenancy, data sensitivity, user population, app class, stack). This is the other half of the fingerprint: a requirement for a multi-tenant, payment-handling app is not the same as for a hobby app.
@@ -60,15 +60,15 @@ You are building the user's app **well** — not gating it. Once requirements ar
 
 ## The findings journal (`.anneal/`)
 
-Anneal keeps a running record for you — **you don't write these files by hand.** Call the `anneal_record` tool and Anneal maintains the journal:
+Anneal keeps a running record for you — **you don't write these files by hand.** Call the `record` tool and Anneal maintains the journal:
 - `findings.md` — the human-readable checklist, **rendered for you**. Read it; never edit it.
 - `store.json` — the structured source of truth behind it (Anneal's; leave it alone).
 - `config.json` — controls, including the build mode.
 
-`.anneal/` is gitignored, so it stays local. The journal is a **working checklist, not a source of truth** — a fresh `anneal_review` is always ground truth.
+`.anneal/` is gitignored, so it stays local. The journal is a **working checklist, not a source of truth** — a fresh `review` is always ground truth.
 
 ### Recording a finding
-Track each requirement you surface with `anneal_record`:
+Track each requirement you surface with `record`:
 - **First time** — pass `finding_id` (a stable slug like `tenant-isolation`), `requirement`, `severity`, and `state: "suggested"`. Add `rationale` (the failure scenario), `capability`, and `location` when you have them.
 - **Later** — pass the same `finding_id` and the new `state` to move it. You don't repeat requirement/severity.
 

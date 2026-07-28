@@ -22656,7 +22656,7 @@ function buildDirective(capabilities, mode, context, corpusCount = 0) {
   return { mode, capabilities, instruction: instructionFor(capabilities, mode, context, corpusCount) };
 }
 function instructionFor(capabilities, mode, context, corpusCount = 0) {
-  const journal = " Track each requirement you surface by calling anneal_record \u2014 Anneal maintains the findings journal for you.";
+  const journal = " Track each requirement you surface by calling record \u2014 Anneal maintains the findings journal for you.";
   const setting = contextClause(context);
   const research = researchClause(corpusCount);
   if (mode === "build-intent") {
@@ -22836,14 +22836,14 @@ function seedTapFinding(projectRoot, f) {
 }
 
 // src/mcp/server.ts
-var INSTRUCTIONS = `Anneal is a production-readiness observer. It tells you what a project *does* (capabilities) and directs you to reason about what it *needs*. Call anneal_review with mode "build-intent" when the user asks to build something, and mode "review" after significant changes (it reviews only changed files by default; pass full:true only when the user wants a whole-codebase review). Surface every requirement that applies to what the user is actually building \u2014 scoped to the request, never capped at a round number (if 13 apply, give 13). Present each thoroughly and in plain language, with why it matters and a concrete failure scenario. Track each requirement you surface by calling anneal_record (states: suggested/approved/done/deferred/dismissed) \u2014 Anneal maintains .anneal/findings.md for you; never edit it by hand. Honor the build mode in .anneal/config.json (pause = confirm which to include before building; auto = build with safeguards). Weave approved requirements INTO the feature they belong to as you build it \u2014 don't make them a prerequisite phase before building starts. For the full method, use the "production-readiness" skill.`;
+var INSTRUCTIONS = `Anneal is a production-readiness observer. It tells you what a project *does* (capabilities) and directs you to reason about what it *needs*. Call review with mode "build-intent" when the user asks to build something, and mode "review" after significant changes (it reviews only changed files by default; pass full:true only when the user wants a whole-codebase review). Surface every requirement that applies to what the user is actually building \u2014 scoped to the request, never capped at a round number (if 13 apply, give 13). Present each thoroughly and in plain language, with why it matters and a concrete failure scenario. Track each requirement you surface by calling record (states: suggested/approved/done/deferred/dismissed) \u2014 Anneal maintains .anneal/findings.md for you; never edit it by hand. Honor the build mode in .anneal/config.json (pause = confirm which to include before building; auto = build with safeguards). Weave approved requirements INTO the feature they belong to as you build it \u2014 don't make them a prerequisite phase before building starts. For the full method, use the "production-readiness" skill.`;
 function createServer() {
   const server = new McpServer(
     { name: "anneal", version: "0.1.0" },
     { instructions: INSTRUCTIONS }
   );
   server.registerTool(
-    "anneal_review",
+    "review",
     {
       title: "Anneal production-readiness review",
       description: "Detects what the project does (capabilities) and returns a directive to reason about its production requirements, plus instant code-level findings. Use mode 'build-intent' on build intent, 'review' after changes.",
@@ -22858,7 +22858,7 @@ function createServer() {
     async (args) => handleAnnealReview(args)
   );
   server.registerTool(
-    "anneal_record",
+    "record",
     {
       title: "Anneal record a tracked requirement",
       description: "Track a production requirement you surfaced, or move one you already tracked to a new state (suggested/approved/done/deferred/dismissed). Anneal maintains .anneal/findings.md from these calls \u2014 never edit that file by hand. Include requirement + severity the first time you record a finding.",
